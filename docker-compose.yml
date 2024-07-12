@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  nginx:
+    build:
+      context: docker/images/nginx
+    container_name: phptools_nginx
+    volumes:
+      - './docker/images/nginx/conf.d:/etc/nginx/conf.d'
+      - './public:/var/www/public'
+    ports:
+      - 80:80
+    links:
+      - php
+
+  php:
+    build:
+      context: docker/images/php
+    container_name: phptools_php
+    volumes:
+      - './public:/var/www/public'
+      - './docker/logs/php:/var/log/php/'
+    environment:
+      - "DB_PORT=3306"
+      - "DB_HOST=mysql"
+    links:
+      - mysql
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  mysql:
+    image: mysql:9
+    container_name: phptools_mysql
+    volumes:
+      - ./docker/storage/mysql:/var/lib/mysql
+    restart: always
+    environment:
+      - "MYSQL_ROOT_PASSWORD=secret"
+      - "MYSQL_USER=user"
+      - "MYSQL_PASSWORD=secret"
+      - "MYSQL_DATABASE=app"
+    ports:
+      - 33061:3306
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phptools_phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=user
+      - PMA_PASSWORD=secret
+      - UPLOAD_LIMIT=64M
+    restart: always
+    ports:
+      - 8081:80
