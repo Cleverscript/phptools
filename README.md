@@ -3,9 +3,9 @@
 ---
 
 - nginx
-- php
-- php-fpm
+- php + php-fpm
 - mysql
+- redis
 - phpmyadmin
 - xdebug
 - composer

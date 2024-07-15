@@ -24,8 +24,22 @@ services:
       - "DB_HOST=mysql"
     links:
       - mysql
+      - redis
     extra_hosts:
       - host.docker.internal:host-gateway
+
+  redis:
+    build:
+      context: docker/images/redis
+    container_name: phptools_redis
+    volumes:
+      - ./docker/storage/redis:/root/redis
+    restart: always
+    ports:
+      - "63791:6379"
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
 
   mysql:
     image: mysql:9
@@ -34,9 +48,9 @@ services:
       - ./docker/storage/mysql:/var/lib/mysql
     restart: always
     environment:
-      - "MYSQL_ROOT_PASSWORD=secret"
+      - "MYSQL_ROOT_PASSWORD=qwerty"
       - "MYSQL_USER=user"
-      - "MYSQL_PASSWORD=secret"
+      - "MYSQL_PASSWORD=qwerty"
       - "MYSQL_DATABASE=app"
     ports:
       - 33061:3306
@@ -47,7 +61,7 @@ services:
     environment:
       - PMA_HOST=mysql
       - PMA_USER=user
-      - PMA_PASSWORD=secret
+      - PMA_PASSWORD=qwerty
       - UPLOAD_LIMIT=64M
     restart: always
     ports:

@@ -10,6 +10,9 @@ RUN pecl install imagick \
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug;
 
+RUN pecl install redis \
+    && docker-php-ext-enable redis;
+
 RUN docker-php-ext-install pdo_mysql opcache && \
     docker-php-ext-configure opcache --enable-opcache && \
     docker-php-ext-install sockets;
