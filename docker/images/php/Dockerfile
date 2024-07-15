@@ -2,7 +2,7 @@ FROM php:8.3.9-fpm
 
 RUN apt-get update && apt-get install -y libmcrypt-dev mariadb-client \
     libmagickwand-dev --no-install-recommends \
-    git curl wget zip unzip vim htop man;
+    git curl wget zip unzip vim htop man procps;
 
 RUN pecl install imagick \
     && docker-php-ext-enable imagick;
@@ -23,6 +23,17 @@ RUN docker-php-ext-enable exif
 
 # копируем кастомные конфиги PHP
 COPY ./conf.d/* ${PHP_INI_DIR}/conf.d/
+
+
+# создаем группу и пользователя под которым будет запускаться PHP
+RUN groupadd -g 1000 phptools
+RUN useradd -u 1000 -g phptools -G sudo -m phptools
+RUN echo 'phptools:qwerty' | chpasswd
+# указываем под каким пользователем запускать PHP
+USER phptools
+
+
+WORKDIR /var/www/public
 
 #RUN apt-get update && apt-get install mariadb-client
 #RUN apt-get install libmcrypt-dev 
@@ -46,16 +57,3 @@ COPY ./conf.d/* ${PHP_INI_DIR}/conf.d/
     # composer taken from (https://github.com/geshan/docker-php-composer-alpine)
 #    && apk --no-cache add curl git openssh \
 #    && curl -sSL https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-
-# install & enable xdebug v3
-#RUN pecl install xdebug \
-#    && docker-php-ext-enable xdebug \
-#    && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-#    && echo "xdebug.client_host = host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
-#RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \ 
-#  && pecl install xdebug \
-#  && docker-php-ext-enable xdebug \
-#  && apk del pcre-dev ${PHPIZE_DEPS}
-
-WORKDIR /var/www/public
