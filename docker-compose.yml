@@ -6,6 +6,7 @@ services:
     container_name: phptools_nginx
     volumes:
       - './docker/images/nginx/conf.d:/etc/nginx/conf.d'
+      - './docker/logs/nginx:/var/log/nginx'
       - './public:/var/www/public'
     ports:
       - 80:80
